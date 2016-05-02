@@ -1,0 +1,23 @@
+---
+- name: create link /usr/local/bin/mediainfo
+  file: src=/usr/bin/mediainfo dest=/usr/local/bin/mediainfo state=link
+  ignore_errors: True
+  register: out
+
+- name: add repository (mediainfo)
+  apt_repository: repo='ppa:djcj/mediainfo'
+  when: out|failed
+
+- name: Updating packages
+  apt: update_cache=yes cache_valid_time=3600
+  when: out|failed
+
+- name: install required packages
+  apt: name={{item}} state=present
+  with_items:
+    - mediainfo
+  when: out|failed
+
+- name: create link /usr/local/bin/mediainfo
+  file: src=/usr/bin/mediainfo dest=/usr/local/bin/mediainfo state=link
+
